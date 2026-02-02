@@ -104,21 +104,6 @@ function Add-EEHRIcon {
 }
 
 
-# function Add-FirefoxPolicy {
-#     $Firefox = $Software.Firefox
-#     $FirefoxPath = (Get-FirefoxInfo).Path
-#     $distributionPath = Join-Path $FirefoxPath 'distribution'
-
-#     if (-not (Test-Path $distributionPath)) {
-#         Write-Host "Creating distribution directory..."
-#         New-Item -Path $distributionPath -ItemType Directory
-#     }
-
-#     $policiesPath = Join-Path
-
-# }
-
-
 function Add-HelpdeskIcon {
     Add-BrowserIcon `
     -Firefox `
@@ -357,7 +342,6 @@ Installs Chrome for Enterprise without requiring user interaction.
 }
 
 
-
 function Install-Egnyte {
     $Egnyte = $Software.Egnyte
     $Result = Show-YesNoBox `
@@ -516,5 +500,4 @@ function Sync-Time {
     w32tm /resync /force
     w32tm /query /source
 }
-
 

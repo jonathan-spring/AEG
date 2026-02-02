@@ -1,31 +1,19 @@
 # Needs work
 
 
-function Export-WifiProfile {
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [string]$Name
-    )
-    $Wifidir = "C:\Wifi"
+# function Add-FirefoxPolicy {
+#     $Firefox = $Software.Firefox
+#     $FirefoxPath = (Get-FirefoxInfo).Path
+#     $distributionPath = Join-Path $FirefoxPath 'distribution'
 
-    if (-not (Test-Path $Wifidir)){
-        New-Item $Wifidir -ItemType Directory
-    }
-    netsh wlan export profile name=$Name key=clear folder=$Wifidir
-}
+#     if (-not (Test-Path $distributionPath)) {
+#         Write-Host "Creating distribution directory..."
+#         New-Item -Path $distributionPath -ItemType Directory
+#     }
 
+#     $policiesPath = Join-Path
 
-function Import-WifiProfile {
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [string]$XMLName
-    )
-    $Wifidir = "C:\Wifi"
-    $fileName = Join-Path $Wifidir $XMLName
-    netsh wlan add profile filename=$fileName
-}
+# }
 
 
 function Install-Officemate {
