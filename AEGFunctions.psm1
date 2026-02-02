@@ -80,80 +80,7 @@ function Get-AEGFunctions {
 }
 
 
-function Add-AEGUIcon {
-    Add-BrowserIcon `
-    -Firefox `
-    -Url $Icons.AEGU.Url `
-    -Destination $Icons.AEGU.lnk
-}
-
-
-function Add-ARCIcon {
-    Add-BrowserIcon `
-    -Firefox `
-    -Url $Icons.ARC.Url `
-    -Destination $Icons.ARC.lnk
-}
-
-
-function Add-EEHRIcon {
-    Add-BrowserIcon `
-    -Firefox `
-    -Url $Icons.EEHR.Url `
-    -Destination $Icons.EEHR.lnk
-}
-
-
-function Add-HelpdeskIcon {
-    Add-BrowserIcon `
-    -Firefox `
-    -Url $Icons.Helpdesk.Url `
-    -Destination $Icons.Helpdesk.lnk
-}
-
-
-function Add-OptosIcon {
-<#
-.SYNOPSIS
-Adds a Firefox icon for Optos Advance to the desktop.
-
-.EXAMPLE
-Add-OptosIcon -Cloud
-Creates the cloud Firefox icon.
-
-.EXAMPLE
-Add-OptosIcon -Local
-Creates the local Firefox icon.
-#>
-    [CmdletBinding()]
-    param(
-        [switch]$Cloud,
-        [switch]$Local
-    )
-
-    if (-not ($Cloud -xor $Local)) {
-        throw [System.ArgumentException]::new(
-            'The syntax for this command is: Add-OptosIcon -Cloud | -Local'
-        )
-    }
-
-    if ($Cloud) {
-        $url = $Icons.OptosCloud.Url
-        $lnk = $Icons.OptosCloud.lnk
-    }
-    else {
-        $url = $Icons.OptosLocal.Url
-        $lnk = $Icons.OptosLocal.lnk
-    }
-
-    Add-BrowserIcon `
-    -Firefox `
-    -Url $url `
-    -Destination $lnk
-}
-
-
-function Add-BrowserIcon {
+function New-BrowserIcon {
     param(
         [Parameter(Mandatory)][string]$Url,
         [Parameter(Mandatory)][string]$Destination,
@@ -218,6 +145,7 @@ function Enable-ChromePopupsForSite {
 
     New-ItemProperty -Path $regPath -Name $index -Value $Url -PropertyType String -Force
 }
+
 
 function Disable-IPv6 {
 <#
@@ -393,6 +321,79 @@ function Install-MsiFromUrl {
     Start-Process msiexec.exe `
         -ArgumentList $argumentList `
         -Wait -PassThru
+}
+
+
+function New-AEGUIcon {
+    New-BrowserIcon `
+    -Firefox `
+    -Url $Icons.AEGU.Url `
+    -Destination $Icons.AEGU.lnk
+}
+
+
+function New-ARCIcon {
+    New-BrowserIcon `
+    -Firefox `
+    -Url $Icons.ARC.Url `
+    -Destination $Icons.ARC.lnk
+}
+
+
+function New-EEHRIcon {
+    New-BrowserIcon `
+    -Firefox `
+    -Url $Icons.EEHR.Url `
+    -Destination $Icons.EEHR.lnk
+}
+
+
+function New-HelpdeskIcon {
+    New-BrowserIcon `
+    -Firefox `
+    -Url $Icons.Helpdesk.Url `
+    -Destination $Icons.Helpdesk.lnk
+}
+
+
+function New-OptosIcon {
+<#
+.SYNOPSIS
+Adds a Firefox icon for Optos Advance to the desktop.
+
+.EXAMPLE
+Add-OptosIcon -Cloud
+Creates the cloud Firefox icon.
+
+.EXAMPLE
+Add-OptosIcon -Local
+Creates the local Firefox icon.
+#>
+    [CmdletBinding()]
+    param(
+        [switch]$Cloud,
+        [switch]$Local
+    )
+
+    if (-not ($Cloud -xor $Local)) {
+        throw [System.ArgumentException]::new(
+            'The syntax for this command is: Add-OptosIcon -Cloud | -Local'
+        )
+    }
+
+    if ($Cloud) {
+        $url = $Icons.OptosCloud.Url
+        $lnk = $Icons.OptosCloud.lnk
+    }
+    else {
+        $url = $Icons.OptosLocal.Url
+        $lnk = $Icons.OptosLocal.lnk
+    }
+
+    New-BrowserIcon `
+    -Firefox `
+    -Url $url `
+    -Destination $lnk
 }
 
 
