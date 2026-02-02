@@ -89,6 +89,10 @@
     sevenzip = @{
       Url = 'https://www.7-zip.org/a/7z2501-x64.msi'
       msiName = '7z2501-x64.msi'
+      Args = @(
+            '/q'
+            'INSTALLDIR="C:\Program Files\7-Zip"'
+        )
     }
   }
 

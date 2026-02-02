@@ -428,10 +428,12 @@ function Remove-SCInstalls {
 
 function Install-7zip {
     $7zip = $Software.sevenzip
+    $7zipPath = Join-Path $env:TEMP $7zip.msiName
+
     Install-MsiFromUrl `
-    -Url $7zip.Url `
-    -Destination = Join-Path $env:TEMP $7zip.msiName `
-    -Arguments @()
+        -Url $7zip.Url `
+        -Destination $7zipPath `
+        -Arguments $7zip.Args
 }
 
 
