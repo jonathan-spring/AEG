@@ -3,6 +3,7 @@ $config = Import-PowerShellDataFile -Path $ConfigPath
 
 $Icons = $config.Icons
 $Software = $config.Software
+$Paths = $config.Paths
 
 
 function Get-AEGFunctions {
@@ -265,6 +266,21 @@ Creates a firewall rule allowing inbound ICMP traffic.
 }
 
 
+function Export-WifiProfile {
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [string]$Name
+    )
+    $Wifidir = $Paths.WifiProfile
+
+    if (-not (Test-Path $Wifidir)){
+        New-Item $Wifidir -ItemType Directory
+    }
+    netsh wlan export profile name=$Name key=clear folder=$Wifidir
+}
+
+
 function Get-ChromeInfo {
     $Chrome = $Software.Chrome
     $paths = @(
@@ -315,6 +331,18 @@ function Get-SoftwareInfo {
 }
  
 
+function Import-WifiProfile {
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [string]$XMLName
+    )
+    $Wifidir = $Paths.WifiProfile
+    $fileName = Join-Path $Wifidir $XMLName
+    netsh wlan add profile filename=$fileName
+}
+
+
 function Install-Chrome {
 <#
 .SYNOPSIS
@@ -329,9 +357,6 @@ Installs Chrome for Enterprise without requiring user interaction.
 }
 
 
-function Install-Crystal {
-
-}
 
 function Install-Egnyte {
     $Egnyte = $Software.Egnyte
@@ -364,10 +389,6 @@ Installs Firefox ESR silently.
     -Arguments $Firefox.Args
 }
 
-
-# function Install-PackageFromUrl {
-
-#}
 
 function Install-MsiFromUrl {
     param(
@@ -424,7 +445,8 @@ function Install-7zip {
     $7zip = $Software.sevenzip
     Install-MsiFromUrl `
     -Url $7zip.Url `
-    -Destination = Join-Path $env:TEMP $7zip.msiName 
+    -Destination = Join-Path $env:TEMP $7zip.msiName `
+    -Arguments @()
 }
 
 

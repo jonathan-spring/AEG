@@ -138,9 +138,10 @@
   Paths = @{
     # CrystalServer = ''
     # Chrome64 = ''
-   
+    
     PublicDesktop = 'C:\Users\Public\Desktop'
     ReVueLicense = 'C:\OptoVue\LicenseKeys.lic'
+    WifiProfile = 'C:\Wifi'
     Registry = @{
       FirefoxVersion = 'HKLM:\SOFTWARE\mozilla.org\Mozilla' 
       #Get-ItemProperty $FirefoxVersion -ErrorAction SilentlyContinue).'CurrentVersion'
