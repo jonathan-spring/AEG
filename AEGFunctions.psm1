@@ -466,7 +466,7 @@ function Set-LocalUserPasswordExpiration {
 }
 
 
-Set-LocalUsersNeverExpire {
+function Set-LocalUsersNeverExpire {
     Set-LocalUserPasswordExpiration -Username 'AEG.User' -PasswordExpires $false
     Set-LocalUserPasswordExpiration -Username 'Acuity.local' -PasswordExpires $false
 }
