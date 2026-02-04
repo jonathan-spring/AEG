@@ -35,8 +35,24 @@
 
     MSOffice = @{
       DeploymentToolUrl = 'https://download.microsoft.com/download/6c1eeb25-cf8b-41d9-8d0d-cc1dbc032140/officedeploymenttool_19628-20046.exe'
-    }
+      ConfigXml = @"
+<Configuration>
+  <Add OfficeClientEdition="64" Channel="MonthlyEnterprise">
 
+    <Product ID="O365ProPlusRetail">
+      <Language ID="en-us" />
+    </Product>
+
+  </Add>
+
+  <Updates Enabled="TRUE" />
+
+  <Display Level="None" AcceptEULA="TRUE" />
+
+</Configuration>
+"@
+  }
+    
     Forum = @{
       xmPath = 'C:\Program Files\CZM\FORUM Viewer\settings'
       settings = 'internal.settings.xml'
