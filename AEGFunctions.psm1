@@ -324,6 +324,14 @@ function Install-MsiFromUrl {
 }
 
 
+function New-ALEIcon {
+    New-BrowserIcon `
+    -Firefox `
+    -Url $Icons.AcuityLogic.Url `
+    -Destination $Icons.AcuityLogic.lnk
+}
+
+
 function New-AEGUIcon {
     New-BrowserIcon `
     -Firefox `

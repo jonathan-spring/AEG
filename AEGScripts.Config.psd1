@@ -33,13 +33,17 @@
       iniName = 'Omate32.ini'
     }
 
+    MSOffice = @{
+      DeploymentToolUrl = 'https://download.microsoft.com/download/6c1eeb25-cf8b-41d9-8d0d-cc1dbc032140/officedeploymenttool_19628-20046.exe'
+    }
+
     Forum = @{
       xmPath = 'C:\Program Files\CZM\FORUM Viewer\settings'
       settings = 'internal.settings.xml'
     }
 
     Firefox = @{
-      Url = 'https://www.firefox.com/en-US/download/all/desktop-esr/win64-msi/'
+      Url = 'https://download.mozilla.org/?product=firefox-esr-msi-latest-ssl&os=win64&lang=en-US'
       path32 = 'C:\Program Files (x86)\Mozilla Firefox'
       path64 = 'C:\Program Files\Mozilla Firefox'
       policy = 'policies.json'
@@ -64,6 +68,16 @@
       msiName = 'EgnyteConnectWin.msi'
       Log = 'EgnyteInstall.log'
     }
+    
+    dotNETDesktopRuntime = @{
+      Url = 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/8.0.23/windowsdesktop-runtime-8.0.23-win-x64.exe'
+    }
+
+    DellCommand = @{
+      Url = 'https://dl.dell.com/FOLDER13922605M/1/Dell-Command-Update-Application_5CR1Y_WIN64_5.6.0_A00.EXE'
+      Url2 = 'https://dl.dell.com/FOLDER13309588M/3/Dell-Command-Update-Windows-Universal-Application_C8JXV_WIN64_5.5.0_A00_02.EXE'
+      exeName = 'Dell-Command-Update-Application_5CR1Y_WIN64_5.6.0_A00.exe'
+    }
 
     Crystal = @{
       Url = ''
@@ -84,6 +98,11 @@
       Args = @()
     }
     
+    CppRedist = @{
+      x86_2008Url = 'https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x86.exe'
+      x64_latestUrl = 'https://aka.ms/vc14/vc_redist.x64.exe' 
+    } 
+
     Ambir830ix = @{
       Url = 'https://ambirfileshare.s3.us-west-2.amazonaws.com/DS830ix_V6001_B1001.exe'
       exe = 'DS830ix_V6001_B1001.exe'
@@ -108,6 +127,7 @@
   Icons = @{
     AcuityLogic = @{
       Url = 'https://eyecare.aegvision.com'
+      lnk = 'Acuity Logic.lnk'
     }
 
     ARC = @{
