@@ -398,6 +398,11 @@ Creates the local Firefox icon.
 
 
 function Remove-SCInstalls {
+<#
+.SYNOPSIS
+Removes all except for most recently updated SC installations.
+#>
+
     if (-not (Get-Command Get-Package -ErrorAction SilentlyContinue)) {
         Write-Warning "Get-Package is not available on this system. Possibly an older Windows install."
         return
@@ -476,6 +481,14 @@ function Set-LocalUsersNeverExpire {
 
 
 function Show-YesNoBox {
+<#
+.SYNOPSIS
+Creates a Yes/No context menu. Logic for behavior upon button press is written in the calling function.
+
+.EXAMPLE
+Show-YesNoBox -MessageBody "Would you like to install softwareX?" -MessageTitle "SoftwareXInstallation"
+#>
+
     param (
         [string] $MessageBody,
         [string] $MessageTitle

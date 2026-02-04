@@ -33,6 +33,11 @@
       iniName = 'Omate32.ini'
     }
 
+    Forum = @{
+      xmPath = 'C:\Program Files\CZM\FORUM Viewer\settings'
+      settings = 'internal.settings.xml'
+    }
+
     Firefox = @{
       Url = 'https://www.firefox.com/en-US/download/all/desktop-esr/win64-msi/'
       path32 = 'C:\Program Files (x86)\Mozilla Firefox'
