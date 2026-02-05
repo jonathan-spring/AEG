@@ -71,7 +71,36 @@
     Epson = @{
       TMS1000 = @{
         Url = 'https://ftp.epson.com/drivers/pos/TMS1000DRV108.exe'
-        exeName = 'TMS1000DRV108.exe'
+        WrapperName = 'TMS1000DRV108.exe'
+        iss = @"
+[{8421B211-0841-44DD-8B61-CC3A0C2D46D0}-DlgOrder]
+Dlg0={8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdWelcome-0
+Count=6
+Dlg1={8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdLicense2Rtf-0
+Dlg2={8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdAskDestPath-0
+Dlg3={8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdStartCopy-0
+Dlg4={8421B211-0841-44DD-8B61-CC3A0C2D46D0}-InstallCompornents-0
+Dlg5={8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdFinish-0
+[{8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdWelcome-0]
+Result=1
+[{8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdLicense2Rtf-0]
+Result=1
+[{8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdAskDestPath-0]
+szDir=C:\Program Files (x86)\EPSON\BankDriver\
+Result=1
+[{8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdStartCopy-0]
+Result=1
+[{8421B211-0841-44DD-8B61-CC3A0C2D46D0}-InstallCompornents-0]
+INSTALLDIR=C:\Program Files (x86)\EPSON\BankDriver\
+Runtime=1
+Runtime\TMUSB=1
+Runtime\DotNetRT=1
+Runtime\Trace=0
+[{8421B211-0841-44DD-8B61-CC3A0C2D46D0}-SdFinish-0]
+Result=1
+bOpt1=0
+bOpt2=0
+"@
       }	
       TMS1000ii = @{
         Url = 'https://ftp.epson.com/drivers/pos/TMS9000S2000S1000IIDRV410.exe'
@@ -114,19 +143,70 @@
       Args = @()
     }
     
-    CppRedist = @{
-      x86_2008Url = 'https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x86.exe'
-      x64_latestUrl = 'https://aka.ms/vc14/vc_redist.x64.exe' 
-    } 
+    # CppRedist = @{
+    #   Args = @(
+    #     '/quiet'
+    #     '/norestart'
+    #   )
+    #   x86_2008 = @{
+    #     Url = 'https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x86.exe'
+    #     WrapperName = 'vcredist2008_x86.exe'
+    #   }
+    #   x64latest = @{
+    #     Url = 'https://aka.ms/vc14/vc_redist.x64.exe'
+    #     WrapperName = 'vcredistlatest_x64.exe'
+    #   }
+    #   x64_2010SP1 = @{
+    #     Url = 'https://download.microsoft.com/download/1/6/5/165255e7-1014-4d0a-b094-b6a430a6bffc/vcredist_x64.exe'
+    #     WrapperName = 'vcredist2010_x64.exe'
+    #   }
+    # } 
 
     Ambir830ix = @{
       Url = 'https://ambirfileshare.s3.us-west-2.amazonaws.com/DS830ix_V6001_B1001.exe'
-      exe = 'DS830ix_V6001_B1001.exe'
+      exeName = 'DS830ix_V6001_B1001.exe'
       issInstaller = 'Ambir830ix_install.iss'
       issUninstaller = 'Ambir830ix_uninstall.iss'
+      iss=@"
+[InstallShield Silent]
+Version=v7.00
+File=Response File
+[File Transfer]
+OverwrittenReadOnly=NoToAll
+[{6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-DlgOrder]
+Dlg0={6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-SdWelcome-0
+Count=4
+Dlg1={6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-SdAskDestPath-0
+Dlg2={6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-AskOptions-0
+Dlg3={6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-SdFinish-0
+[{6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-SdWelcome-0]
+Result=1
+[{6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-SdAskDestPath-0]
+szDir=C:\Program Files (x86)\Ambir\Ambir ImageScan Pro 830ix
+Result=1
+[{6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-AskOptions-0]
+Result=1
+Sel-0=1
+Sel-1=1
+[Application]
+Name=Ambir ImageScan Pro 830ix
+Version= 
+Company=Ambir Technology
+Lang=0009
+[{6AC39839-3E2D-4A8A-ABED-A2AB4DCF2833}-SdFinish-0]
+Result=1
+bOpt1=0
+bOpt2=0
+"@
+
+    }
+
+    Acrobat = @{
+      Url = 'https://trials.adobe.com/AdobeProducts/APRO/Acrobat_HelpX/win32/Acrobat_DC_Web_x64_WWMUI.zip'
     }
 
     sevenzip = @{
+      Path = 'C:\Program Files\7-Zip\7z.exe'
       Url = 'https://www.7-zip.org/a/7z2501-x64.msi'
       msiName = '7z2501-x64.msi'
       Args = @(

@@ -90,7 +90,7 @@ function Install-CheckScannerDriver {
 
 
 function Install-MicrosoftOffice {
-
+    
 }
 
 
@@ -212,4 +212,45 @@ function Install-MSOfficeODT {
             # Remove-Item -Path $StageRoot -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
+}
+
+
+function Install-AmbirScannerDrivers {
+    $Ambir830ix = $Software.Ambir830ix
+    $downloadPath = Join-Path $env:TEMP $Ambir830ix.exeName
+    $downloadURL = $Ambir830ix.Url
+
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri $downloadURL -OutFile $downloadPath
+
+    #extracts the installshield exe from the ambir installer
+    $extractedPath = Join-Path $env:TEMP "AmbirDriver"
+    New-Item -ItemType Directory -Path $extractedPath -Force | Out-Null
+
+    $sevenZip = $Software.sevenzip.Path
+    Start-Process -FilePath $sevenZip `
+        -ArgumentList @(
+            "x",                
+            "`"$downloadPath`"",
+            "-o`"$extractedPath`"",
+            "-y"                
+        ) `
+        -Wait -NoNewWindow
+
+    $installerPath = Join-Path $extractedPath "setup.exe"
+
+
+    $issInstallerPath = "$env:PUBLIC\Ambir830ix_install.iss"
+   
+    $ilog = "$env:PUBLIC\Ambir830ix_install_record.log"
+    $issInstallerNormalized = ($issInstaller -replace "`r?`n", "`r`n")
+
+    [System.IO.File]::WriteAllText(
+        $issInstallerPath,
+        $issInstallerNormalized,
+        [System.Text.Encoding]::Default
+    )
+
+    $arguments = '/s /f1"{0}" /f2"{1}"' -f $issInstallerPath, $ilog
+    Start-Process -FilePath $installerPath -ArgumentList $arguments
 }

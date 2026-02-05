@@ -5,6 +5,7 @@ $Icons = $config.Icons
 $Software = $config.Software
 $Paths = $config.Paths
 
+$WifiPath = Join-Path $PSScriptRoot 'Wifi'
 
 function Get-AEGFunctions {
     [CmdletBinding()]
@@ -194,6 +195,19 @@ function Export-WifiProfile {
 }
 
 
+function Expand-sevenzip {
+        [CmdletBinding()]
+        param (
+            [Parameter()]
+            [string]$Archive,
+            [string]$Destination
+        )
+    $7zipPath = "C:\Program Files\7-Zip\7z.exe"
+    # -o specifies the output directory, no space between -o and the path
+    & $7zipPath x $Archive "-o$Destination" -y
+}
+
+
 function Get-ChromeInfo {
     $Chrome = $Software.Chrome
     $paths = @(
@@ -256,6 +270,84 @@ function Import-WifiProfile {
 }
 
 
+function Install-AdobeAcrobat {
+    winget install --id Adobe.Acrobat.Reader.64-bit -e --silent
+}
+
+
+function Install-AmbirScannerDrivers {
+    $Ambir830ix = $Software.Ambir830ix
+    $downloadPath = Join-Path $env:TEMP $Ambir830ix.exeName
+    $downloadURL = $Ambir830ix.Url
+
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri $downloadURL -OutFile $downloadPath
+
+    #extracts the installshield exe from the ambir installer
+    $extractedPath = Join-Path $env:TEMP "AmbirDriver"
+    New-Item -ItemType Directory -Path $extractedPath -Force | Out-Null
+
+    $sevenZip = $Software.sevenzip.Path
+    Start-Process -FilePath $sevenZip `
+        -ArgumentList @(
+            "x",                
+            "`"$downloadPath`"",
+            "-o`"$extractedPath`"",
+            "-y"                
+        ) `
+        -Wait -NoNewWindow
+
+    $installerPath = Join-Path $extractedPath "setup.exe"
+
+    $issInstaller = $Ambir830ix.iss
+    $issInstallerPath = "$env:PUBLIC\Ambir830ix_install.iss"
+   
+    $ilog = "$env:PUBLIC\Ambir830ix_install_record.log"
+    $issInstallerNormalized = ($issInstaller -replace "`r?`n", "`r`n")
+
+    [System.IO.File]::WriteAllText(
+        $issInstallerPath,
+        $issInstallerNormalized,
+        [System.Text.Encoding]::Default
+    )
+
+    $arguments = '/s /f1"{0}" /f2"{1}"' -f $issInstallerPath, $ilog
+    Start-Process -FilePath $installerPath -ArgumentList $arguments
+}
+
+function Invoke-CheckScannerDriver {
+  $Epson = $Software.Epson
+    $TMS1000 = $Epson.TMS1000
+    $downloadPath = Join-Path $env:TEMP $TMS1000.WrapperName
+    $downloadURL = $TMS1000.Url
+ 
+
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri $downloadURL -OutFile $downloadPath
+
+    Start-Process -FilePath $downloadPath 
+}
+
+function Install-CheckScannerDriver {
+
+    $downloadPath = Join-Path $env:TEMP $TMS1000.WrapperName
+
+    if (-not (Test-Path $downloadPath)){
+        Invoke-CheckScannerDriver
+    }
+    $Epson = $Software.Epson
+    $TMS1000 = $Epson.TMS1000
+    
+    $extractedPath = Join-Path $env:TEMP 'TMS1000DRV108_\Driver\setup.exe'
+    $issDir = "C:\ProgramData\Epson"
+    New-Item -ItemType Directory -Force -Path $issDir | Out-Null
+
+    $iss = Join-Path $issDir "TM-S1000.iss"
+    $log = Join-Path $issDir "TM-S1000-record.log"
+    Start-Process -FilePath $extractedPath -ArgumentList "/r /f1`"$iss`" /f2`"$log`"" -Wait
+}
+
+
 function Install-Chrome {
 <#
 .SYNOPSIS
@@ -267,6 +359,13 @@ Installs Chrome for Enterprise without requiring user interaction.
     -Url $Software.Chrome.Url `
     -Destination $msiPath `
     -Arguments $Software.Chrome.Args
+}
+
+
+function Install-CPPRedists {
+    winget install -e --id Microsoft.VCRedist.2008.x86
+    winget install -e --id Microsoft.VCRedist.2010.x64
+    winget install -e --id Microsoft.VCRedist.2015+.x64
 }
 
 
@@ -301,6 +400,10 @@ Installs Firefox ESR silently.
     -Arguments $Firefox.Args
 }
 
+
+function Install-MSOffice {
+
+}
 
 function Install-MsiFromUrl {
     param(
