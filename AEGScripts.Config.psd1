@@ -142,6 +142,12 @@ bOpt2=0
       popupsregistry = 'HKLM:\Software\Policies\Google\Chrome\PopupsAllowedForUrls'
       Args = @()
     }
+
+    Cato = @{
+      Url = 'https://clientdownload.catonetworks.com/public/clients/setup.exe'
+      Path32 = 'C:\Program Files (x86)\Cato Networks\Cato Client'
+      exeName = 'CatoClient.exe'
+    }
     
     # CppRedist = @{
     #   Args = @(

@@ -315,8 +315,31 @@ function Install-AmbirScannerDrivers {
     Start-Process -FilePath $installerPath -ArgumentList $arguments
 }
 
+
+function Invoke-CatoClient {
+    $Cato = $Software.Cato
+    $downloadPath = Join-Path $env:TEMP $Cato.exeName
+    $downloadRUL = $Cato.Url
+
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri $downloadRUL -OutFile $downloadPath
+}
+
+
+function Install-CatoClient {
+    Show-YesNoBox -MessageBody "Install Cato VPN?" -MessageTitle "Cato Installer"
+    $Cato = $Software.Cato
+    $downloadPath = Join-Path $env:TEMP $Cato.exeName
+
+    if (-not (Test-Path $downloadPath)){
+        Invoke-CatoClient
+    }
+
+    Start-Process -FilePath $downloadPath -ArgumentList "/s" -Wait
+}
+
 function Invoke-CheckScannerDriver {
-  $Epson = $Software.Epson
+    $Epson = $Software.Epson
     $TMS1000 = $Epson.TMS1000
     $downloadPath = Join-Path $env:TEMP $TMS1000.WrapperName
     $downloadURL = $TMS1000.Url
@@ -371,9 +394,10 @@ function Install-CPPRedists {
 
 function Install-Egnyte {
     $Egnyte = $Software.Egnyte
-    $Result = Show-YesNoBox `
+    $Result = Show-MessageBox `
     -MessageBody "Do you want to Install Egnyte?" `
-    -MessageTitle "Egnyte Installater"
+    -MessageTitle "Egnyte Installater" `
+    -YesNoBox
 
     # Act on the result
     if ($Result -eq [System.Windows.Forms.DialogResult]::Yes) {
@@ -424,6 +448,31 @@ function Install-MsiFromUrl {
     Start-Process msiexec.exe `
         -ArgumentList $argumentList `
         -Wait -PassThru
+}
+
+
+function Join-AEHDomain {
+    $Result = Show-MessageBox `
+    -MessageBody "Do you want to Join the AEH.lcl domain?" `
+    -MessageTitle "Domain Join" `
+    -YesNoBox
+
+    if ($Result -eq [System.Windows.Forms.DialogResult]::Yes) {
+        if (-not (Test-Path $Software.Cato.Path32)){
+            Install-CatoClient
+        }
+        $CatoProcess = Join-Path $Software.Cato.Path32 $Software.Cato.exeName
+        Start-Process -FilePath $CatoProcess
+        $Result = Show-MessageBox `
+        -MessageBody "Please connect to the Cato VPN and press 'OK' to continue..." `
+        -MessageTitle "VPN Connection Required"
+        if ($Result -eq [System.Windows.Forms.DialogResult]::OK) {
+            $Creds = Get-Credential -Message "Enter domain administrator credentials"
+            Add-Computer -DomainName "AEH.lcl" -Credential $Creds
+        } else {
+            continue
+        }
+    }
 }
 
 
@@ -591,7 +640,7 @@ function Set-LocalUsersNeverExpire {
 }
 
 
-function Show-YesNoBox {
+function Show-MessageBox {
 <#
 .SYNOPSIS
 Creates a Yes/No context menu. Logic for behavior upon button press is written in the calling function.
@@ -602,18 +651,28 @@ Show-YesNoBox -MessageBody "Would you like to install softwareX?" -MessageTitle 
 
     param (
         [string] $MessageBody,
-        [string] $MessageTitle
+        [string] $MessageTitle,
+        [switch] $YesNoBox
     )
 
     Add-Type -AssemblyName System.Windows.Forms
 
-    # Show the message box and store the result
-    $Answer = [System.Windows.Forms.MessageBox]::Show(
-        $MessageBody,
-        $MessageTitle,
-        [System.Windows.Forms.MessageBoxButtons]::YesNo,
-        [System.Windows.Forms.MessageBoxIcon]::Question
-    )
+    if ($YesNoBox){
+        # Show the message box and store the result
+        $Answer = [System.Windows.Forms.MessageBox]::Show(
+            $MessageBody,
+            $MessageTitle,
+            [System.Windows.Forms.MessageBoxButtons]::YesNo,
+            [System.Windows.Forms.MessageBoxIcon]::Question
+        )
+    } else {
+        $Answer = [System.Windows.Forms.MessageBox]::Show(
+            $MessageBody,
+            $MessageTitle,
+            [System.Windows.Forms.MessageBoxButtons]::OKCancel,
+            [System.Windows.Forms.MessageBoxIcon]::Question
+        )
+    }
     return $Answer
 }
 
