@@ -351,23 +351,89 @@ function Invoke-CheckScannerDriver {
     Start-Process -FilePath $downloadPath 
 }
 
-function Install-CheckScannerDriver {
 
+function Invoke-CrystalPM {
+    $Crystal = $Software.Crystal
+    $downloadPath = Join-Path $env:TEMP 'CrystalPM.zip'
+    $expandedPath = Join-Path $env:TEMP 'CrystalPM'
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri $Crystal.Url -OutFile $downloadPath
+    Expand-Archive -Path $downloadPath -DestinationPath $expandedPath
+}
+
+
+function Install-CrystalPM {
+    [CmdletBinding()]
+    param (
+        [string]$serverName
+    )
+
+    $Crystal = $Software.Crystal
+    $expandedPath = Join-Path $env:TEMP 'CrystalPM'
+    $clientPath = Join-Path $expandedPath 'Client'
+    $msiPath = Join-path $clientPath 'Crystal PM Client.msi'
+    if (-not(Test-Path $expandedPath)) {
+        Invoke-CrystalPM 
+    }
+
+    Start-Process msiexec /i $msiPath  /qb
+
+    if ($serverName) {
+        $iniPath = $Crystal.iniPath
+        $content = Get-Content -Path $iniPath
+
+        for ($i = 0; $i -lt $content.Length; $i++) {
+            if ($content[$i] -match '^DataSource=') {
+                $content[$i] = "DataSource=$serverName"
+                break
+            }
+        }
+    }
+
+    $exePath = Join-Path $Crystal.x86Path $Crystal.exeName
+    $shortcutPath = Join-Path "$env:PUBLIC\Desktop" $Crystal.lnk
+    $WScriptShell = New-Object -ComObject WScript.Shell
+    $shortcut = $WScriptShell.CreateShortcut($shortcutPath)
+    $shortcut.TargetPath = $exePath
+    $shortcut.Save()
+
+    Set-Content -Path $iniPath -Value $content -Encoding UTF8
+
+    Start-Process -FilePath $Crystal.x86Path $Crystal.exeName
+
+
+}
+
+
+function Install-CheckScannerDriver {
+    $Epson = $Software.Epson
+    $TMS1000 = $Epson.TMS1000
     $downloadPath = Join-Path $env:TEMP $TMS1000.WrapperName
 
     if (-not (Test-Path $downloadPath)){
         Invoke-CheckScannerDriver
     }
-    $Epson = $Software.Epson
-    $TMS1000 = $Epson.TMS1000
+
     
     $extractedPath = Join-Path $env:TEMP 'TMS1000DRV108_\Driver\setup.exe'
-    $issDir = "C:\ProgramData\Epson"
-    New-Item -ItemType Directory -Force -Path $issDir | Out-Null
+    $issInstaller = $TMS1000.iss
+    $issInstallerPath = "$env:PUBLIC\TMS1000_install.iss"
 
-    $iss = Join-Path $issDir "TM-S1000.iss"
-    $log = Join-Path $issDir "TM-S1000-record.log"
-    Start-Process -FilePath $extractedPath -ArgumentList "/r /f1`"$iss`" /f2`"$log`"" -Wait
+    $issInstallerNormalized = ($issInstaller -replace "`r?`n", "`r`n")
+
+    [System.IO.File]::WriteAllText(
+        $issInstallerPath,
+        $issInstallerNormalized,
+        [System.Text.Encoding]::Default
+    )
+    $arguments = '/s /f1"{0}"' -f $issInstallerPath
+    Start-Process -FilePath $extractedPath -ArgumentList $arguments -Wait
+}
+
+
+function Invoke-Chrome {
+    $msiPath = Join-Path $env:TEMP $Software.Chrome.msiName
+    Invoke-WebRequest -Uri $Software.Chrome.Url -OutFile $msiPath 
 }
 
 
@@ -429,6 +495,7 @@ function Install-MSOffice {
 
 }
 
+
 function Install-MsiFromUrl {
     param(
         [Parameter(Mandatory)][string]$Url,
@@ -451,28 +518,70 @@ function Install-MsiFromUrl {
 }
 
 
-function Join-AEHDomain {
-    $Result = Show-MessageBox `
-    -MessageBody "Do you want to Join the AEH.lcl domain?" `
-    -MessageTitle "Domain Join" `
-    -YesNoBox
+function Install-7zip {
+    $7zip = $Software.sevenzip
+    $7zipPath = Join-Path $env:TEMP $7zip.msiName
 
-    if ($Result -eq [System.Windows.Forms.DialogResult]::Yes) {
-        if (-not (Test-Path $Software.Cato.Path32)){
-            Install-CatoClient
-        }
-        $CatoProcess = Join-Path $Software.Cato.Path32 $Software.Cato.exeName
-        Start-Process -FilePath $CatoProcess
-        $Result = Show-MessageBox `
-        -MessageBody "Please connect to the Cato VPN and press 'OK' to continue..." `
-        -MessageTitle "VPN Connection Required"
-        if ($Result -eq [System.Windows.Forms.DialogResult]::OK) {
-            $Creds = Get-Credential -Message "Enter domain administrator credentials"
-            Add-Computer -DomainName "AEH.lcl" -Credential $Creds
-        } else {
-            continue
-        }
+    Install-MsiFromUrl `
+        -Url $7zip.Url `
+        -Destination $7zipPath `
+        -Arguments $7zip.Args
+}
+
+
+function Join-AEHDomain {
+
+    Add-Type -AssemblyName System.Windows.Forms
+
+    $Result = Show-MessageBox `
+        -MessageBody "Do you want to Join the AEH.lcl domain?" `
+        -MessageTitle "Domain Join" `
+        -YesNoBox
+
+    if ($Result -ne [System.Windows.Forms.DialogResult]::Yes) {
+        return
     }
+
+    # Ensure Cato installed
+    if (-not (Test-Path $Software.Cato.Path32)){
+        Install-CatoClient
+    }
+
+    $CatoProcess = Join-Path $Software.Cato.Path32 $Software.Cato.exeName
+    Start-Process -FilePath $CatoProcess
+
+    # ---- LOOP UNTIL CONNECTED ----
+    while ($true) {
+
+        $Result = [System.Windows.Forms.MessageBox]::Show(
+            "Please connect to the Cato VPN and press 'OK' to continue.",
+            "VPN Connection Required",
+            [System.Windows.Forms.MessageBoxButtons]::OKCancel,
+            [System.Windows.Forms.MessageBoxIcon]::Information
+        )
+
+        if ($Result -eq [System.Windows.Forms.DialogResult]::Cancel) {
+            return
+        }
+
+        # Check connection
+        $CatoConnected = Get-NetIPAddress |
+            Where-Object {
+                $_.InterfaceAlias -eq "CatoNetworks" -and
+                $_.AddressState -eq "Preferred"
+            }
+
+        if ($CatoConnected) {
+            break
+        }
+
+        # Optional small pause to avoid hammering system
+        Start-Sleep -Seconds 1
+    }
+
+    # If we get here, Cato is connected
+    $Creds = Get-Credential -Message "Enter domain administrator credentials"
+    Add-Computer -DomainName "AEH.lcl" -Credential $Creds -Force -Restart
 }
 
 
@@ -590,17 +699,6 @@ Removes all except for most recently updated SC installations.
     }
 }
  
-
-function Install-7zip {
-    $7zip = $Software.sevenzip
-    $7zipPath = Join-Path $env:TEMP $7zip.msiName
-
-    Install-MsiFromUrl `
-        -Url $7zip.Url `
-        -Destination $7zipPath `
-        -Arguments $7zip.Args
-}
-
 
 function Set-LocalUserPasswordExpiration {
     [CmdletBinding()]

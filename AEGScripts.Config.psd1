@@ -125,8 +125,13 @@ bOpt2=0
     }
 
     Crystal = @{
-      Url = ''
-      iniPath = ''
+      Url = 'http://www.crystalpm.com/clientvista.zip'
+      iniName = 'insight.ini'
+      lnk = 'CrystalPM.lnk'
+      msiName = 'Crystal PM Client.msi'
+      exeName = 'CrystalPM.exe'
+      x86Path = 'C:\Program Files (x86)\CrystalPM'
+      
     }
 
     Cirrus = @{
@@ -140,7 +145,6 @@ bOpt2=0
       msiName = 'googlechromestandaloneenterprise64.msi'
       exeName = 'chrome.exe'
       popupsregistry = 'HKLM:\Software\Policies\Google\Chrome\PopupsAllowedForUrls'
-      Args = @()
     }
 
     Cato = @{

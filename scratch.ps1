@@ -74,6 +74,14 @@ function Install-PackageFromUrl {
 }
 
 
+function Invoke-CrystalPM {
+    $Crystal = $Software.Crystal
+    $downloadPath = Join-Path $env:TEMP 'CrystalPM.zip'
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri $Crystal.Url -OutFile $downloadPath
+}
+
+
 function Install-CrystalPM {
 
 }
